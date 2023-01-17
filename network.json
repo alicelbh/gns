@@ -1,35 +1,42 @@
 {
-  "AS0": 
-    {
-      "prefix" : "2001:100:",
-      "mask" : "64",
-      "prefixBorder" : "2002:100:",
-      "asNumber": 0,
-      "routerType" : "c7200",
-      "protocol": "RIP",
-      "borderProtocol": "BGP",
-      "inMatrix":     [[0, ["dudu"], 0, ["dada"]],
-                       [["dodo"], 0, ["didi"], 0],
-                       [0, ["dpdp"], 0, ["dede"]],
-                       [["didi"], 0, ["dydy"], 0]]
-    },"AS1": 
-    {
-      "prefix" : "2001:100:",
-      "mask" : "64",
-      "prefixBorder" : "2002:100:",
-      "asNumber": 1,
-      "routerType" : "c7200",
-      "protocol": "OSPF",
-      "borderProtocol": "BGP",
-      "inMatrix":     [[0, ["dudu", 100], 0, ["dada", 100]],
-                       [["dodo", 20], 0, ["didi", 30], 0],
-                       [0, ["dpdp", 10], 0, ["dede", 0]],
-                       [["didi", 100], 0, ["dydy", 100], 0]]
-    }, 
-    "adjAS": [[0, [6,"if1"]],
-              [[6, "if2"], 0]]
-  }
-
+    "AS0": 
+      {
+        "prefix" : "2001:100:",
+        "mask" : "64",
+        "prefixBorder" : "2002:100:",
+        "asNumber": 0,
+        "routerType" : "c7200",
+        "protocol": "RIP",
+        "borderProtocol": "BGP",
+        "inMatrix":     [[0, "FastEthernet0/0", "GigabitEthernet1/0", 0, 0, 0, 0],
+                         ["GigabitEthernet1/0", 0, "GigabitEthernet2/0", "FastEthernet0/0", 0, 0, 0],
+                         ["GigabitEthernet2/0", 0, 0, 0, "FastEthernet0/0", 0, 0],
+                         [0, "GigabitEthernet2/0", 0, 0, "GigabitEthernet1/0", "FastEthernet0/0", 0],
+                         [0, 0, "GigabitEthernet2/0", "GigabitEthernet3/0", 0, "GigabitEthernet3/0", "FastEthernet0/0"],
+                         [0, 0, 0, "GigabitEthernet1/0", "GigaEthernet2/0", 0, 0],
+                         [0, 0, 0, "GigabitEthernet2/0", "GigabitEthernet1/0", 0, 0]]
+      },"AS1": 
+      {
+        "prefix" : "2001:100:",
+        "mask" : "64",
+        "prefixBorder" : "2002:100:",
+        "asNumber": 1,
+        "routerType" : "c7200",
+        "protocol": "OSPF",
+        "borderProtocol": "BGP",
+        "inMatrix":     [[0, ["FastEthernet0/0", 100], ["GigabitEthernet1/0", 100], 0, 0, 0, 0],
+                         [["GigabitEthernet1/0", 100], 0, ["GigabitEthernet2/0", 100], ["FastEthernet0/0", 100], 0, 0, 0],
+                         [["GigabitEthernet1/0", 100], ["GigabitEthernet2/0", 100], 0, 0, ["FastEthernet0/0", 100], 0, 0],
+                         [0, ["GigabitEthernet2/0", 100], 0, 0, ["GigabitEthernet3/0", 100], ["FastEthernet0/0", 100], ["GigabitEthernet1/0", 100]],
+                         [0, 0, ["GigabitEthernet2/0", 100], ["GigabitEthernet3/0", 100], 0, ["GigabitEthernet1/0", 100], ["FastEthernet0/0", 100],
+                         [0, 0, 0, ["GigabitEthernet1/0", 100], ["GigaEthernet2/0", 100], 0, 0],
+                         [0, 0, 0, ["GigabitEthernet2/0", 100], ["GigabitEthernet1/0", 100], 0, 0]]]
+      },"adjAS": 
+      {
+        "mat": [[0, [6,"FastEthernet0/0", 7, "FastEthernet0/0"]],
+                [[6, "FastEthernet0/0", 7, "FastEthernet0/0"] , 0]]
+      }
+    }
 
 
 
