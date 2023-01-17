@@ -10,7 +10,7 @@
         "borderProtocol": "BGP",
         "inMatrix":     [[0, "FastEthernet0/0", "GigabitEthernet1/0", 0, 0, 0, 0],
                          ["GigabitEthernet1/0", 0, "GigabitEthernet2/0", "FastEthernet0/0", 0, 0, 0],
-                         ["GigabitEthernet2/0", 0, 0, 0, "FastEthernet0/0", 0, 0],
+                         ["GigabitEthernet1/0", "GigabitEthernet2/0", 0, 0, "FastEthernet0/0", 0, 0],
                          [0, "GigabitEthernet2/0", 0, 0, "GigabitEthernet1/0", "FastEthernet0/0", 0],
                          [0, 0, "GigabitEthernet2/0", "GigabitEthernet3/0", 0, "GigabitEthernet3/0", "FastEthernet0/0"],
                          [0, 0, 0, "GigabitEthernet1/0", "GigaEthernet2/0", 0, 0],
@@ -37,7 +37,5 @@
                 [[6, "FastEthernet0/0", 7, "FastEthernet0/0"] , 0]]
       }
     }
-
-
 
 
