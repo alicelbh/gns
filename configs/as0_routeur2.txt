@@ -1,0 +1,56 @@
+enable
+configure terminal
+ipv6 unicast-routing
+ipv6 router rip 02
+exit
+interface GigabitEthernet1/0
+ipv6 enable
+ipv6 address 2000:100:0:1::2/64
+no shutdown
+ipv6 rip 02 enable 
+exit
+interface GigabitEthernet2/0
+ipv6 enable
+ipv6 address 2000:100:0:2::2/64
+no shutdown
+ipv6 rip 02 enable 
+exit
+interface FastEthernet0/0
+ipv6 enable
+ipv6 address 2000:100:0:4::1/64
+no shutdown
+ipv6 rip 02 enable 
+exit
+interface loopback 0
+ipv6 enable
+ipv6 address 0::2/128
+no shutdown
+ipv6 rip 02 enable 
+exit
+configure terminal
+router bgp 0
+no bgp default ipv4-unicast
+bgp router-id 0.0.0.2
+neighbor 0::0/128 remote-as 0
+neighbor 0::0/128 update-source Loopback0
+neighbor 0::1/128 remote-as 0
+neighbor 0::1/128 update-source Loopback0
+neighbor 0::3/128 remote-as 0
+neighbor 0::3/128 update-source Loopback0
+neighbor 0::4/128 remote-as 0
+neighbor 0::4/128 update-source Loopback0
+neighbor 0::5/128 remote-as 0
+neighbor 0::5/128 update-source Loopback0
+neighbor 0::6/128 remote-as 0
+neighbor 0::6/128 update-source Loopback0
+address-family ipv6 unicast
+neighbor 0::0/128 activate
+neighbor 0::1/128 activate
+neighbor 0::3/128 activate
+neighbor 0::4/128 activate
+neighbor 0::5/128 activate
+neighbor 0::6/128 activate
+network 2000:100:0:1::/64
+network 2000:100:0:2::/64
+network 2000:100:0:4::/64
+exit
