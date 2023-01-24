@@ -13,7 +13,8 @@
                   [0, ["GigabitEthernet2/0",0], 0, 0, ["GigabitEthernet3/0",0], ["FastEthernet0/0", 0],  ["GigabitEthernet1/0", 10]],
                   [0, 0, ["GigabitEthernet2/0", 0], ["GigabitEthernet3/0", 0], 0, ["GigabitEthernet1/0", 0], ["FastEthernet0/0", 0]],
                   [0, 0, 0, ["GigabitEthernet1/0", 0], ["GigaEthernet2/0", 0], 0, 0],
-                  [0, 0, 0, ["GigabitEthernet2/0", 0], ["GigabitEthernet1/0", 0], 0, 0]]
+                  [0, 0, 0, ["GigabitEthernet2/0", 0], ["GigabitEthernet1/0", 0], 0, 0]],
+      "listPorts": [5000, 5001, 5002, 5003, 5004, 5005, 5006]
     },"AS1": 
     {
       "prefix" : "2001:100:",
@@ -28,7 +29,8 @@
                     [0, ["GigabitEthernet2/0", 100], 0, 0, ["GigabitEthernet3/0", 100], ["FastEthernet0/0", 100], ["GigabitEthernet1/0", 100]],
                     [0, 0, ["GigabitEthernet2/0", 100], ["GigabitEthernet3/0", 100], 0, ["GigabitEthernet1/0", 100], ["FastEthernet0/0", 100]],
                     [0, 0, 0, ["GigabitEthernet1/0", 100], ["GigaEthernet2/0", 100], 0, 0],
-                    [0, 0, 0, ["GigabitEthernet2/0", 100], ["GigabitEthernet1/0", 100], 0, 0]]
+                    [0, 0, 0, ["GigabitEthernet2/0", 100], ["GigabitEthernet1/0", 100], 0, 0]],
+      "listPorts": [5013, 5012, 5011, 5010, 5009, 5007, 5008]
     }, 
     "adjAS": [[0, [5,"FastEthernet0/0", "2002:1:", 6, "FastEthernet0/0", "2002:2:"]],
               [[5, "FastEthernet0/0", "2002:1:", 6, "FastEthernet0/0", "2002:2:"] , 0]]
