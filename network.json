@@ -34,4 +34,4 @@
     }, 
     "adjAS": [[0, [5,"FastEthernet0/0", "1000:1:", 6, "FastEthernet0/0", "1000:2:"]],
               [[5, "FastEthernet0/0", "1000:1:", 6, "FastEthernet0/0", "1000:2:"] , 0]]
-  }
+}
