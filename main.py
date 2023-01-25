@@ -1,5 +1,14 @@
+import sys
 import json
 import copy
+import time
+import telnetlib
+import io
+
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import pyqtSlot
+
 
 def configureInsideProtocols(asName):
     listR = [] #list of routers in the AS
@@ -128,22 +137,30 @@ def configureBorderProtocol():
 
 
 
-if __name__ == "__main__":
-    # Opening JSON file
-    with open('network.json', 'r') as openfile:
-        net = json.load(openfile)
 
-    listAS = [] #list that will contain the router list, config list and matrix of each AS
+def window():
+    app = QApplication(sys.argv)
+    widget = QWidget()
 
-    #generate an array to store the new information about border router (ip, subnet, etc)
-    borderMat = net['adjAS']
-    updatedBorder = copy.deepcopy(borderMat)
-    for u in range (0, len(updatedBorder)):
-        for v in range (0, len(updatedBorder)):
-            if updatedBorder[u][v] != 0 :
-                updatedBorder[u][v] = []
+    button1 = QPushButton(widget)
+    button1.setText("Generate files")
+    button1.move(64,32)
+    button1.clicked.connect(button1_clicked)
 
-    #implement the inside protocols for each AS
+    # button2 = QPushButton(widget)
+    # button2.setText("Send config")
+    # button2.move(64,64)
+    # button2.clicked.connect(button2_clicked)
+
+    widget.setGeometry(50,50,320,200)
+    widget.setWindowTitle("Dudu")
+    widget.show()
+    sys.exit(app.exec_())
+
+
+def button1_clicked():
+    print("Button 1 clicked")
+   #implement the inside protocols for each AS
     for key in net: #for each 
         if (key!="adjAS"):
             configureInsideProtocols(key)
@@ -155,9 +172,39 @@ if __name__ == "__main__":
         for r in range (0, len(listAS[i]['config'])):
             f = open("configs/as"+ str(i+1) + "_router" + str(r+1) +".txt", "w")
             f.write(listAS[i]['config'][r])
+    
+    #telnet
+    for i in range(len(net.keys()) - 1):
 
-    projectPath = ""
+        nbRouters = len(net["AS" + str(i+1)]['inMatrix'])
+        for j in range(nbRouters): 
+            time.sleep(0.1)
+            #we connect to the router
+            
+            port = net["AS" + str(i+1)]["listPorts"][j]
+            print(port)
+            tn = telnetlib.Telnet("localhost", port)
+            buf = io.StringIO(listAS[i]["config"][j])
+            read_lines = buf.readlines()
 
+            for line in read_lines:
+                print(line)
+                #we write each line in the router's console
+                tn.write(b"\r\n")
+                tn.write(line.encode('utf_8') + b"\r\n")
+                time.sleep(0.1)
+            #file.close()
+   
+if __name__ == '__main__':
+    listAS = [] #list that will contain the router list, config list and matrix of each AS
+    with open('network.json', 'r') as openfile:
+        net = json.load(openfile)
 
-
-# todo: generate new text files for the direct config (relpace exit by !)
+    #generate an array to store the new information about border router (ip, subnet, etc)
+    borderMat = net['adjAS']
+    updatedBorder = copy.deepcopy(borderMat)
+    for u in range (0, len(updatedBorder)):
+        for v in range (0, len(updatedBorder)):
+            if updatedBorder[u][v] != 0 :
+                updatedBorder[u][v] = []
+    window()
