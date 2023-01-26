@@ -148,16 +148,16 @@ def telnetHandler(lAS):
             
             port = net["AS" + str(i+1)]["listPorts"][j]
             print(port)
-            #tn = telnetlib.Telnet("localhost", port)
+            tn = telnetlib.Telnet("localhost", port)
             buf = io.StringIO(lAS[i]["config"][j])
             read_lines = buf.readlines()
 
             for line in read_lines:
                 print(line)
                 #we write each line in the router's console
-                #tn.write(b"\r\n")
-                #tn.write(line.encode('utf_8') + b"\r\n")
-                #time.sleep(0.1)
+                tn.write(b"\r\n")
+                tn.write(line.encode('utf_8') + b"\r\n")
+                time.sleep(0.1)
     print("Done")
 
 def generateTextFiles(lAS):
@@ -179,6 +179,8 @@ def button1_clicked(lAS, uB):
     
     telnetHandler(lAS) #send the config to telnet
 
+    print(uB)
+
 def window(lAS, uB):
     app = QApplication(sys.argv)
     widget = QWidget()
@@ -188,70 +190,10 @@ def window(lAS, uB):
     button1.move(20,32)
     button1.clicked.connect(lambda:button1_clicked(lAS, uB))
 
-    routerConnections = QLineEdit(widget)
-    routerConnections.move(20, 160)
-    routerConnections.setPlaceholderText("Connections")
-    routerConnections.resize(280,40)
-    asN = QLineEdit(widget)
-    asN.move(20, 100)
-    asN.setPlaceholderText("Number of the AS you want to modify")
-    asN.resize(280,40)
-
-    b2 = QPushButton(widget)
-    b2.setText("Add router")
-    b2.move(20, 220)
-    b2.clicked.connect(lambda:addRouter(asN, lAS))
-
-    b3 = QPushButton(widget)
-    b3.setText("Add connection")
-    b3.move(120, 220)
-    b3.clicked.connect(lambda:connectRouter(routerConnections, asN, lAS))
-
-    widget.setGeometry(50,50,700,500)
+    widget.setGeometry(50,50,200,100)
     widget.setWindowTitle("Dudu")
     widget.show()
     sys.exit(app.exec_())
-
-def addRouter(asN, lAS):
-
-    nb = int(asN.text())
-    asN.setText("")
-    print(nb)
-    print(len(lAS))
-    n = len(lAS[nb-1]["matrix"])
-    lAS[nb-1]["matrix"].append([])
-    lAS[nb-1]["matrix"][n].append([])
-    for i in range (0, n):
-        lAS[nb-1]["matrix"][n].append([])
-        lAS[nb-1]["matrix"][i].append([])
-    print(lAS[nb-1]["matrix"])
-
-
-
-def connectRouter(rCo, nb, lAS):
-    connections = rCo.text()
-    l = [str(num) for num in connections.split()]
-
-    router1 = l[0]
-    if1 = l[1]
-    router2 = l[2]
-    if2 = l[3]
-    weight = l[4]
-
-    rCo.setText("")
-    for i in range (0, len(lAS[nb-1]["matrix"][router1])):
-        if lAS[nb-1]["matrix"][router1][i] != [] :
-            if lAS[nb-1]["matrix"][router1][i][0] == if1:
-                print(if1 + "is already attributed towards " + str(i))
-                return 0
-    for i in range (0, len(lAS[nb-1]["matrix"][router2])):
-        if lAS[nb-1]["matrix"][router2][i] != [] :
-            if lAS[nb-1]["matrix"][router2][i][0] == if2:
-                print(if2 + "is already attributed towards " + str(i))
-                return 0
-    lAS[nb-1]["matrix"][router1][router2]=[if1,weight]
-    lAS[nb-1]["matrix"][router2][router1]=[if2,weight]    
-
 
 if __name__ == '__main__':
     listAS = [] #mother list that will contain the router list, config list and matrix of each AS
@@ -267,9 +209,3 @@ if __name__ == '__main__':
                 updatedBorder[u][v] = [] #every list in the array is replaced by an empty one (we'll need them after)
     
     window(listAS, updatedBorder)
-
-
-
-
-
-   
