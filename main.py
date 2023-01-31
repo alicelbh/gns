@@ -5,9 +5,7 @@ import time
 import telnetlib
 import io
 
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLineEdit
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
 
 def configureInsideProtocols(asName, uB, lAS):
     listR = [] #list of routers in the AS
@@ -81,7 +79,7 @@ def configureInsideProtocols(asName, uB, lAS):
             text += 'ipv6 router ospf 1\nrouter-id ' + routerID + "\nexit\n"
             for a in range (0, matLen): #configure all of the physical interfaces
                 if asMat[i][a] !=0:
-                    text+= "interface " + asMat[i][a]["interface"] + "\nipv6 enable" + "\nipv6 address " + asMat[i][a]["@ip"] + asMask + "\nno shutdown\nipv6 ospf 1 area 0\nexit\n"
+                    text+= "interface " + asMat[i][a]["interface"] + "\nipv6 enable" + "\nipv6 address " + asMat[i][a]["@ip"] + asMask + "\nip ospf cost " + str(asMat[i][a]["metric"])+"\nno shutdown\nipv6 ospf 1 area 0\nexit\n"
             text+= "interface loopback 0\nipv6 enable\nipv6 address " + loopBackAddress + "/128" + "\nno shutdown\nipv6 ospf 1 area 0 \nexit\n"
             text+= textBorder
 
@@ -183,7 +181,6 @@ def generateTextFiles(lAS):
         for r in range (0, len(lAS[i]['config'])):
             f = open("configs/as"+ str(i+1) + "_router" + str(r+1) +".txt", "w")
             f.write(lAS[i]['config'][r])
-
 
 def button1_clicked(lAS, uB):
    #implement the inner protocols of each AS
