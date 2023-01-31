@@ -66,7 +66,7 @@ def configureInsideProtocols(asName, uB, lAS):
 
 
         #generate the written configurations
-        text = "enable\nconfigure terminal\nipv6 unicast-routing\n"
+        text = "enable\nconfigure terminal\nipv6 unicast-routing\nip bgp-community new-format\n"
         if(asProt == 'RIP'):
             text += 'ipv6 router rip ' + routerName + "\nexit\n"
             for a in range (0, matLen): #configure all of the physical interfaces
@@ -126,7 +126,7 @@ def configureBorderProtocol(lAS, uB):
             lAS[n]["config"][i] += "address-family ipv6 unicast\n"
             for j in range(0, len(lAS[n]["routers"])):
                 if i!=j:
-                    lAS[n]["config"][i] += "neighbor " + lAS[n]["routers"][j]["loopBackAddress"] +" activate\n"
+                    lAS[n]["config"][i] += "neighbor " + lAS[n]["routers"][j]["loopBackAddress"] +" activate\nneighbor " + listAS[n]["routers"][j]["loopBackAddress"] +" send-community\n"
             for j in range(0, len(lAS[n]["matrix"][i])):
                 if lAS[n]["matrix"][i][j] != 0:
                     lAS[n]["config"][i] += "network " + lAS[n]["matrix"][i][j]["@subnet"] + mask +"\n"
@@ -138,7 +138,25 @@ def configureBorderProtocol(lAS, uB):
                     router = uB[i][n][y]['router']
                     address =  uB[i][n][y]['@ip']
 
-                    lAS[n]["config"][router] += "neighbor " + address + " remote-as " + str(i+1) + "\naddress-family ipv6 unicast\nneighbor " + address + " activate\nnetwork " + uB[n][i][y]['@subnet'] + "\nexit\n"
+                    lAS[n]["config"][router] += "neighbor " + address + " remote-as " + str(i+1) + "\naddress-family ipv6 unicast\nneighbor " + address + " activate\nneighbor " + address + " send-community\nnetwork " + uB[n][i][y]['@subnet'] + "\nexit\n"
+
+    routemap_configuration(lAS, uB, adjAS)
+def routemap_configuration(lAS, uB, adjAS):
+    for i in range(0, len(adjAS)):
+        for j in range(0, len(adjAS[i])):
+            if (adjAS[i][j] != 0) :
+                for k in range(0, len(uB[i][j])):
+                    router = uB[j][i][k]['router']
+                    address =  uB[j][i][k]['@ip']
+                    l = len(adjAS[i][j])-1
+                    rship = adjAS[i][j][l]
+                    match rship:
+                        case "peer":
+                            lAS[i]["config"][router] += "end\nconfigure terminal\nip community-list standard non_client_filter permit " + str(i+1)+":37\nroute-map non_client_out permit 10\nmatch community non_client_filter\nexit\nroute-map non_client_out deny 100\nexit\nroute-map non_client_in permit 10\nset local-preference 200\nexit\nrouter bgp " + str(i+1) + "\naddress-family ipv6 unicast\nneighbor " + address + " route-map non_client_out out\nneighbor " + address + " route-map non_client_in in\nend\n"
+                        case "provider":
+                            lAS[i]["config"][router] += "end\nconfigure terminal\nip community-list standard non_client_filter permit " + str(i+1)+":37\nroute-map non_client_out permit 10\nmatch community non_client_filter\nexit\nroute-map non_client_out deny 100\nexit\nroute-map non_client_in permit 10\nset local-preference 100\nexit\nrouter bgp " + str(i+1) + "\naddress-family ipv6 unicast\nneighbor " + address + " route-map non_client_out out\nneighbor " + address + " route-map non_client_in in\nend\n"
+                        case "client":
+                            lAS[i]["config"][router] += "end\nconfigure terminal\nroute-map client_handler permit 10\nset community " + str(i+1)+":37\nset local-preference 300\nexit\nrouter bgp " + str(i+1) + "\naddress-family ipv6 unicast\nneighbor " + address + " route-map client_handler in\nend\n"
 
 def telnetHandler(lAS):
     for i in range(len(net.keys()) - 1):
@@ -177,7 +195,7 @@ def button1_clicked(lAS, uB):
 
     generateTextFiles(lAS) #generate writter config
     
-    telnetHandler(lAS) #send the config to telnet
+    #telnetHandler(lAS) #send the config to telnet
 
     print(uB)
 
