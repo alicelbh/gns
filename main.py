@@ -132,29 +132,38 @@ def configureBorderProtocol(lAS, uB):
         ####### configure eBGP
         for i in range(0, len(adjAS[n])):
             if (adjAS[n][i]) != 0:
-                for y in range(0, len(uB[n][i])):
-                    router = uB[i][n][y]['router']
-                    address =  uB[i][n][y]['@ip']
-
-                    lAS[n]["config"][router] += "neighbor " + address + " remote-as " + str(i+1) + "\naddress-family ipv6 unicast\nneighbor " + address + " activate\nneighbor " + address + " send-community\nnetwork " + uB[n][i][y]['@subnet'] + "\nexit\n"
+                for y in range(0, len(uB[i][n])):
+                    localRouter = uB[n][i][y]['router'] #get number of the border router in our AS 
+                    neighborAddress =  uB[i][n][y]['@ip']#get the ip of the border router we are connected to 
+                    lAS[n]["config"][localRouter] += "neighbor " + neighborAddress + " remote-as " + str(i+1) + "\naddress-family ipv6 unicast\nneighbor " + neighborAddress + " activate\nneighbor " + neighborAddress + " \nnetwork " + uB[i][n][y]['@subnet'] + "\nexit\n"
 
     routemap_configuration(lAS, uB, adjAS)
 def routemap_configuration(lAS, uB, adjAS):
     for i in range(0, len(adjAS)):
         for j in range(0, len(adjAS[i])):
             if (adjAS[i][j] != 0) :
-                for k in range(0, len(uB[i][j])):
-                    router = uB[j][i][k]['router']
+                for k in range(0, len(uB[j][i])):                    
+                    router = uB[i][j][k]['router']
                     address =  uB[j][i][k]['@ip']
+                    #set up access-lists
+                    alist = ""
+                    if(len(uB[j][i]) > 1):
+                        lAS[i]["config"][router] += "end\nconfigure terminal\n ipv6 access-list other_link_filter\n"
+                        alist = "route-map non_client_out deny 5\nmatch ipv6 address other_link_filter\nexit\n"
+                    for t in range(0,len(uB[j][i])):
+                        if (t != k):
+                            lAS[i]["config"][router] += "permit " + uB[j][i][t]['@subnet'] + " any\n"
+                    #set up route-maps
                     l = len(adjAS[i][j])-1
                     rship = adjAS[i][j][l]
                     match rship:
                         case "peer":
-                            lAS[i]["config"][router] += "end\nconfigure terminal\nip community-list standard non_client_filter permit " + str(i+1)+":37\nroute-map non_client_out permit 10\nmatch community non_client_filter\nexit\nroute-map non_client_out deny 100\nexit\nroute-map non_client_in permit 10\nset local-preference 200\nexit\nrouter bgp " + str(i+1) + "\naddress-family ipv6 unicast\nneighbor " + address + " route-map non_client_out out\nneighbor " + address + " route-map non_client_in in\nend\n"
+                            lAS[i]["config"][router] += "end\nconfigure terminal\nip community-list standard provider_filter permit " + str(i+1)+":10\nip community-list standard peer_filter permit " + str(i+1)+":20\n"+alist+"route-map non_client_out deny 10\nmatch community provider_filter\nexit\nroute-map non_client_out deny 20\nmatch community peer_filter\nexit\nroute-map non_client_out permit 100\nexit\nroute-map peer_handler permit 10\nset community "+str(i+1)+":20\nset local-preference 200\nexit\nrouter bgp " + str(i+1) + "\naddress-family ipv6 unicast\nneighbor " + address + " route-map non_client_out out\nneighbor " + address + " route-map peer_handler in\nend\n"
                         case "provider":
-                            lAS[i]["config"][router] += "end\nconfigure terminal\nip community-list standard non_client_filter permit " + str(i+1)+":37\nroute-map non_client_out permit 10\nmatch community non_client_filter\nexit\nroute-map non_client_out deny 100\nexit\nroute-map non_client_in permit 10\nset local-preference 100\nexit\nrouter bgp " + str(i+1) + "\naddress-family ipv6 unicast\nneighbor " + address + " route-map non_client_out out\nneighbor " + address + " route-map non_client_in in\nend\n"
+                            lAS[i]["config"][router] += "end\nconfigure terminal\nip community-list standard provider_filter permit " + str(i+1)+":10\nip community-list standard peer_filter permit " + str(i+1)+":20\n"+alist+"route-map non_client_out deny 10\nmatch community provider_filter\nexit\nroute-map non_client_out deny 20\nmatch community peer_filter\nexit\nroute-map non_client_out permit 100\nexit\nroute-map provider_handler permit 10\nset community "+str(i+1)+":10\nset local-preference 50\nexit\nrouter bgp " + str(i+1) + "\naddress-family ipv6 unicast\nneighbor " + address + " route-map non_client_out out\nneighbor " + address + " route-map provider_handler in\nend\n"
                         case "client":
                             lAS[i]["config"][router] += "end\nconfigure terminal\nroute-map client_handler permit 10\nset community " + str(i+1)+":37\nset local-preference 300\nexit\nrouter bgp " + str(i+1) + "\naddress-family ipv6 unicast\nneighbor " + address + " route-map client_handler in\nend\n"
+                    lAS[i]["config"][router] += "clear bgp ipv6 unicast *"
 
 def telnetHandler(lAS):
     for i in range(len(net.keys()) - 1):
@@ -192,7 +201,7 @@ def button1_clicked(lAS, uB):
 
     generateTextFiles(lAS) #generate writter config
     
-    #telnetHandler(lAS) #send the config to telnet
+    telnetHandler(lAS) #send the config to telnet
 
     print(uB)
 
@@ -212,7 +221,7 @@ def window(lAS, uB):
 
 if __name__ == '__main__':
     listAS = [] #mother list that will contain the router list, config list and matrix of each AS
-    with open('network.json', 'r') as openfile:
+    with open('network_multi.json', 'r') as openfile:
         net = json.load(openfile)
 
     #generate an array to store the new information about border router (ip, subnet, etc)
